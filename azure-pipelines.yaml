@@ -14,22 +14,13 @@ jobs:
   - job: 'CrossCompile'
     strategy:
       matrix:
-        mac:
-          target: 'x86_64-apple-darwin'
-          imageName: 'macos-10.13'
-        win:
+          win:
           target: 'x86_64-windows-10'
           imageName: 'vs2017-win2016'
     pool:
       vmImage: $(imageName)
     steps:
-      - script: |
-            curl -L https://sourceforge.net/projects/sbcl/files/sbcl/1.2.11/sbcl-1.2.11-x86-64-darwin-binary.tar.bz2/download?use_mirror=astuteinternet > darwin.tar.bz2
-            bzip2 -cd darwin.tar.bz2 | tar xvf -
-            cd sbcl-1.2.11-x86-64-darwin
-            sh install.sh
-        displayName: Mac Install SBCL
-        condition: eq( variables['Agent.OS'], 'Darwin' )
+      - 
       - script: |
             curl -L https://sourceforge.net/projects/sbcl/files/sbcl/1.4.14/sbcl-1.4.14-x86-64-windows-binary.msi/download?use_mirror=pilotfiber > windows.msi
             msiexec.exe /qn /i windows.msi
@@ -96,11 +87,7 @@ jobs:
   - job: 'CrossCompileLinux'
     strategy:
       matrix:
-        linux:
-          target: 'x86_64-unknown-linux-gnu'
-          imageName: 'ubuntu-16.04'
-          containerImage: ubuntu:18.04
-          containerOptions: "--name ci-container -v /usr/bin/docker:/tmp/docker:ro"
+       
     pool:
       vmImage: $(imageName)
     container:
