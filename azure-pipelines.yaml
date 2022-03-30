@@ -84,55 +84,8 @@ jobs:
         displayName: 'Publish Game Artifact'
         inputs:
           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-  - job: 'CrossCompileLinux'
-    strategy:
-      matrix:
-       
-    pool:
-      vmImage: $(imageName)
-    container:
-      image: $(containerImage)
-      options: $(containerOptions)
-    steps:
-      - script: |
-          /tmp/docker exec -t -u 0 ci-container \
-          sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
-        displayName: "Set up sudo"
-        condition: eq( variables['Agent.OS'], 'Linux' )
-      - script: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gnupg ca-certificates && sudo echo "deb http://ppa.launchpad.net/darabi/lisp/ubuntu bionic main" > /etc/apt/sources.list.d/darabi-lisp.list && apt-key add /tmp/launchpad-ppa-gpg.key
-          sudo apt-get install -y --no-install-recommends sbcl curl git libglx0 libopengl0 libgl1-mesa-dev build-essential
-        displayName: Linux Install Software
-        condition: eq( variables['Agent.OS'], 'Linux' )
-      - script: |
-            cd $HOME
-            git clone https://github.com/sbcl/sbcl
-            cd sbcl
-            git checkout $(SBCL_VERSION)
-            sh make.sh --prefix=$SBCL_HOME $(SBCL_OPTIONS)
-            sudo sh install.sh
-        displayName: Build Special SBCL
-      - bash: |
-            cd $HOME
-            curl -O http://beta.quicklisp.org/quicklisp.lisp
-            sbcl --load quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(ql-util:without-prompting (quicklisp:add-to-init-file))' --eval '(quit)'
-        displayName: Install Quicklisp
-      - script: |
-            mkdir -p $HOME/quicklisp/local-projects/
-            ln -s '$(Build.SourcesDirectory)' $HOME/quicklisp/local-projects/cl-sample-game
-            echo "-- sdl ld path --"
-            ldd libSDL2-2.0.so.0
-            LD_LIBRARY_PATH="./" sbcl --load build-game.lisp
-        displayName: Build Game
-      - task: CopyFiles@2
-        displayName: Copy assets
-        inputs:
-          sourceFolder: '$(Build.SourcesDirectory)'
-          contents: |
-            sample-game-linux
-            libSDL2-2.0.so.0
-          targetFolder: '$(Build.ArtifactStagingDirectory)'
+  
+      
       - task: PublishBuildArtifacts@1
         displayName: 'Publish Game Artifact'
         inputs:
